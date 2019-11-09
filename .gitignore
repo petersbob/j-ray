@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+# images
+/*.ppm
+/*.jpg
+images/
+
+# executable
+raytracer
+
+#visual studio code
+.vscode/
