@@ -1,7 +1,0 @@
-To: josephpe45@gmail.com
-From: josephpe45@gmail.com
-Subject: Render is finished
-
-Samples: 1
-Resolution 600 300
-Creating image image.ppm...
