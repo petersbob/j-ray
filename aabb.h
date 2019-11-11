@@ -28,7 +28,7 @@ class AABB {
     Vector3 _max;
 };
 
-AABB surrounding_box(AABB box0, AABB box1) {
+AABB surroundingBox(AABB box0, AABB box1) {
     Vector3 small( fmin(box0.min().x(), box1.min().x()),
                 fmin(box0.min().y(), box1.min().y()),
                 fmin(box0.min().z(), box1.min().z()));

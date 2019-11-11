@@ -31,11 +31,11 @@ struct Options {
 Vector3 color(const Ray& r, Hitable *world, int depth) {
     HitRecord rec;
     if (world->hit(r, 0.001,FLT_MAX, rec)) {
-        Ray scattered_ray;
+        Ray scatteredRay;
         Vector3 attenuation = Vector3(0.5,0.5,0.5);
-        Vector3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-        if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered_ray)) {
-            return emitted + attenuation*color(scattered_ray, world, depth+1);
+        Vector3 emitted = rec.matPtr->emitted(rec.u, rec.v, rec.p);
+        if (depth < 50 && rec.matPtr->scatter(r, rec, attenuation, scatteredRay)) {
+            return emitted + attenuation*color(scatteredRay, world, depth+1);
         } else {
             return emitted;
         }
@@ -44,7 +44,7 @@ Vector3 color(const Ray& r, Hitable *world, int depth) {
     }
 }
 
-Hitable *random_scene(unsigned char **tex_data) {
+Hitable *randomScene(unsigned char **texData) {
     Vector3 colors[6] = {
             Vector3(0.37,0.62,0.58),
             Vector3(0.24,0.21,0.22),
@@ -61,16 +61,16 @@ Hitable *random_scene(unsigned char **tex_data) {
     int i = 1;
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            float choose_mat = drand48();
+            float chooseMat = drand48();
             Vector3 center(a+0.9*drand48(),0.2,b+0.9*drand48());
             Vector3 color;
             color = colors[ int(drand48()*5) ];
 
             if ((center-Vector3(4,0.2,0)).length() > 0.9) { 
-                if (choose_mat < 0.3) {  // diffuse
+                if (chooseMat < 0.3) {  // diffuse
                     list[i++] = new Sphere(center, 0.2, new Lambertian(new ConstantTexture(color)));
                 }
-                else if (choose_mat < 0.6) { // metal
+                else if (chooseMat < 0.6) { // metal
                     list[i++] = new Sphere(center, 0.2, new Metal(Vector3(0.5*(1 + drand48()), 0.5*(1 + drand48()), 0.5*(1 + drand48())),  0.5*drand48()));
                 }
                 else {  // glass
@@ -83,20 +83,20 @@ Hitable *random_scene(unsigned char **tex_data) {
     list[i++] = new Sphere(Vector3(0, 1, 0), 1.0, new Dielectric(1.5));
 
     int nx, ny, nn;
-    *tex_data = stbi_load("textures/earth.jpg", &nx, &ny, &nn, 0);
-    if (tex_data == NULL) {
+    *texData = stbi_load("textures/earth.jpg", &nx, &ny, &nn, 0);
+    if (texData == NULL) {
         std::cout << "Error: texture could not be loaded!" << std::endl;
         return NULL;
     }
 
-    Material *mat = new Lambertian(new ImageTexture(*tex_data, nx, ny));
+    Material *mat = new Lambertian(new ImageTexture(*texData, nx, ny));
     list[i++] = new Sphere(Vector3(4, 1, 0), 1.0, mat);
 
     list[i++] = new Sphere(Vector3(-4, 1, 0), 1.0, new Metal(colors[4], 0.0));
     return new BVHNode(list,i,0.0, 1.0);
 }
 
-Hitable *cornell_box() {
+Hitable *cornellBox() {
     Hitable **list = new Hitable*[6];
     int i = 0;
     Material *white = new Lambertian(new ConstantTexture(Vector3(0.73, 0.73, 0.73)));
@@ -118,7 +118,7 @@ Hitable *final() {
     Material *green = new Lambertian( new ConstantTexture(Vector3(0.12, 0.45, 0.15)) );
     Material *light = new DiffuseLight( new ConstantTexture(Vector3(15, 15, 15)) );
 
-    list[count++] = cornell_box();
+    list[count++] = cornellBox();
 
     list[count++] = new Sphere(Vector3(0,0,0), 50, red);
     
@@ -142,7 +142,7 @@ Hitable *final() {
 
     // }
 
-    //list[count++] = new ConstantMedium(cornell_box(), 0.01, new ConstantTexture(Vector3(1.0, 1.0, 1.0)));
+    //list[count++] = new ConstantMedium(cornellBox(), 0.01, new ConstantTexture(Vector3(1.0, 1.0, 1.0)));
 
     list[count++] = new XZRect(-200, 200, 0, 200, 554, light);
 
@@ -174,32 +174,32 @@ int main(int argc, char *argv[]) {
     std::cout<< "Resolution " << options.xResolution << " " << options.yResolution << std::endl;
     std::cout<< "Creating image " << options.fileName << "..." << std::endl;
 
-    unsigned char *tex_data;
-    //Hitable *world = random_scene(&tex_data);
+    unsigned char *texData;
+    //Hitable *world = randomScene(&texData);
     Hitable *world = final();
-    // if (tex_data == NULL || world == NULL) {
+    // if (texData == NULL || world == NULL) {
     //     std::cout << "Error: creating scene has failed" << std::endl;
     //     return 0;
     // }
 
     Vector3 lookfrom(0,278,-800);
     Vector3 lookat(0,278,0);
-    float dist_to_focus = 10;
+    float distToFocus = 10;
     float aperture = 0.0;
 
-    Camera cam(lookfrom, lookat, Vector3(0,1,0), 40, float(options.xResolution)/float(options.yResolution), aperture, dist_to_focus, 0, 1);
+    Camera cam(lookfrom, lookat, Vector3(0,1,0), 40, float(options.xResolution)/float(options.yResolution), aperture, distToFocus, 0, 1);
 
     char* image;
     image = new char[options.xResolution*options.yResolution*3];
 
-    parallel_for_each(0, options.yResolution, [=,&image,&cam](int j){
+    parallelForEach(0, options.yResolution, [=,&image,&cam](int j){
         for (int i=0; i < options.xResolution; i++) {
                 Vector3 col(0,0,0);
                 for (int s=0; s < options.nSamples; s++) {
-                    float u = float(i + random_float()) / float(options.xResolution);
-                    float v = float(j + random_float()) / float(options.yResolution);
-                    Ray r = cam.get_ray(u, v);
-                    Vector3 p = r.point_at_parameter(2.0);
+                    float u = float(i + randomFloat()) / float(options.xResolution);
+                    float v = float(j + randomFloat()) / float(options.yResolution);
+                    Ray r = cam.getRay(u, v);
+                    Vector3 p = r.pointAtParameter(2.0);
                     col += color(r, world, 0);
                 }
                 col /= float(options.nSamples);
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
             }
     });
 
-    // stbi_image_free(tex_data);
+    // stbi_image_free(texData);
 
     int fileNameSize = options.fileName.size();
     char cFileName[fileNameSize+1];

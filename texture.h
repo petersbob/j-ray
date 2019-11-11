@@ -1,7 +1,7 @@
 #ifndef TEXTUREH
 #define TEXTUREH
 
-inline float trilinear_interp(float c[2][2][2], float u, float v, float w) {
+inline float trilinearInterp(float c[2][2][2], float u, float v, float w) {
     float accum = 0;
     for (int i=0; i< 2; i++)
         for (int j=0; j< 2; j++)
@@ -30,16 +30,16 @@ class Perlin {
             for (int di=0; di < 2; di++)
                 for (int dj=0; dj < 2; dj++)
                     for (int dk=0; dk < 2; dk++)
-                        c[di][dj][dk] = ranfloat[perm_x[(i+di)&255] ^ perm_x[(j+dj)&255] ^ perm_x[(k+dk)&255]];
-            return trilinear_interp(c, u, v, w);
+                        c[di][dj][dk] = ranfloat[permX[(i+di)&255] ^ permX[(j+dj)&255] ^ permX[(k+dk)&255]];
+            return trilinearInterp(c, u, v, w);
         }
         static float *ranfloat;
-        static int *perm_x;
-        static int *perm_y;
-        static int *perm_z;
+        static int *permX;
+        static int *permY;
+        static int *permZ;
 };
 
-static float *perlin_generate() {
+static float *perlinGenerate() {
     float *p = new float[256];
     for (int i=0; i < 256; ++i) {
         p[i] = drand48();
@@ -57,7 +57,7 @@ void permute(int *p, int n){
     return;
 }
 
-static int* perlin_generate_perm() {
+static int* perlinGeneratePerm() {
     int * p = new int[256];
     for (int i=0; i < 256; i++) {
         p[i] = i;
@@ -130,9 +130,9 @@ Vector3 ImageTexture::value(float u, float v, const Vector3& p) const {
     return Vector3(r, g, b);
 }
 
-float * Perlin::ranfloat = perlin_generate();
-int *Perlin::perm_x = perlin_generate_perm();
-int *Perlin::perm_y = perlin_generate_perm();
-int *Perlin::perm_z = perlin_generate_perm();
+float * Perlin::ranfloat = perlinGenerate();
+int *Perlin::permX = perlinGeneratePerm();
+int *Perlin::permY = perlinGeneratePerm();
+int *Perlin::permZ = perlinGeneratePerm();
 
 #endif

@@ -18,41 +18,41 @@ class JoinThreads {
         }
 };
 
-void parallel_for_each(int first, int last, const std::function<void(int)> &f){
+void parallelForEach(int first, int last, const std::function<void(int)> &f){
     unsigned long const length = last-first;
 
     if (!length) return;
 
-    unsigned long const min_per_thread=25;
-    unsigned long const max_threads=(length+min_per_thread-1)/min_per_thread;
+    unsigned long const minPerThread=25;
+    unsigned long const maxThreads=(length+minPerThread-1)/minPerThread;
 
-    unsigned long const hardware_threads= std::thread::hardware_concurrency();
+    unsigned long const hardwareThreads= std::thread::hardware_concurrency();
 
-    unsigned long const num_threads=std::min(hardware_threads!=0?hardware_threads:2,max_threads);
-    unsigned long const block_size=length/num_threads;
+    unsigned long const numThreads=std::min(hardwareThreads!=0?hardwareThreads:2,maxThreads);
+    unsigned long const blockSize=length/numThreads;
 
-    std::vector<std::future<void>> futures(num_threads-1);
-    std::vector<std::thread> threads(num_threads-1);
+    std::vector<std::future<void>> futures(numThreads-1);
+    std::vector<std::thread> threads(numThreads-1);
     JoinThreads joiner(threads);
 
-    int block_start=first;
+    int blockStart=first;
 
-    for (unsigned long i=0;i<(num_threads-1);i++) {
-        int block_end=block_start;
-        block_end += block_size;
+    for (unsigned long i=0;i<(numThreads-1);i++) {
+        int blockEnd=blockStart;
+        blockEnd += blockSize;
         std::packaged_task<void(void)> task(
             [=]() {
-                for (unsigned long j=block_start;j<block_end;j++) {
+                for (unsigned long j=blockStart;j<blockEnd;j++) {
                     f(j);
                 }
             });
         futures[i]=task.get_future();
         threads[i]=std::thread(std::move(task));
-        block_start=block_end;
+        blockStart=blockEnd;
     }
-    for (unsigned long i=block_start;i<last;i++) f(i);
+    for (unsigned long i=blockStart;i<last;i++) f(i);
 
-    for(unsigned long i=0;i<(num_threads-1);i++) {
+    for(unsigned long i=0;i<(numThreads-1);i++) {
         futures[i].get();
     }
 }
