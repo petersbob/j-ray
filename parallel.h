@@ -5,11 +5,11 @@
 #include <future>
 #include <vector>
 
-class join_threads {
+class JoinThreads {
     std::vector<std::thread>& threads;
     public:
-        explicit join_threads(std::vector<std::thread>& _threads) : threads(_threads) {}
-        ~join_threads() {
+        explicit JoinThreads(std::vector<std::thread>& _threads) : threads(_threads) {}
+        ~JoinThreads() {
             for(unsigned long i=0;i<threads.size();i++) {
                 if(threads[i].joinable()) {
                     threads[i].join();
@@ -33,7 +33,7 @@ void parallel_for_each(int first, int last, const std::function<void(int)> &f){
 
     std::vector<std::future<void>> futures(num_threads-1);
     std::vector<std::thread> threads(num_threads-1);
-    join_threads joiner(threads);
+    JoinThreads joiner(threads);
 
     int block_start=first;
 

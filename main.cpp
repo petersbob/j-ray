@@ -8,12 +8,12 @@
 #include "sphere.h"
 #include "rectangle.h"
 #include "box.h"
-#include "hitable_list.h"
+#include "hitableList.h"
 #include "float.h"
 #include "camera.h"
 #include "material.h"
 #include "parallel.h"
-#include "constant_medium.h"
+#include "constantMedium.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -28,10 +28,10 @@ struct Options {
     int yResolution = 300;
 };
 
-Vector3 color(const ray& r, hitable *world, int depth) {
-    hit_record rec;
+Vector3 color(const Ray& r, Hitable *world, int depth) {
+    HitRecord rec;
     if (world->hit(r, 0.001,FLT_MAX, rec)) {
-        ray scattered_ray;
+        Ray scattered_ray;
         Vector3 attenuation = Vector3(0.5,0.5,0.5);
         Vector3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered_ray)) {
@@ -44,7 +44,7 @@ Vector3 color(const ray& r, hitable *world, int depth) {
     }
 }
 
-hitable *random_scene(unsigned char **tex_data) {
+Hitable *random_scene(unsigned char **tex_data) {
     Vector3 colors[6] = {
             Vector3(0.37,0.62,0.58),
             Vector3(0.24,0.21,0.22),
@@ -55,8 +55,8 @@ hitable *random_scene(unsigned char **tex_data) {
     };
 
     int n = 500;
-    hitable **list = new hitable*[n+1];
-    list[0] =  new sphere(Vector3(0,-1000,0), 1000, new diffuse_light(new constant_texture(Vector3(1.1,1.1,1.1))));
+    Hitable **list = new Hitable*[n+1];
+    list[0] =  new Sphere(Vector3(0,-1000,0), 1000, new DiffuseLight(new ConstantTexture(Vector3(1.1,1.1,1.1))));
 
     int i = 1;
     for (int a = -11; a < 11; a++) {
@@ -68,19 +68,19 @@ hitable *random_scene(unsigned char **tex_data) {
 
             if ((center-Vector3(4,0.2,0)).length() > 0.9) { 
                 if (choose_mat < 0.3) {  // diffuse
-                    list[i++] = new sphere(center, 0.2, new lambertian(new constant_texture(color)));
+                    list[i++] = new Sphere(center, 0.2, new Lambertian(new ConstantTexture(color)));
                 }
                 else if (choose_mat < 0.6) { // metal
-                    list[i++] = new sphere(center, 0.2, new metal(Vector3(0.5*(1 + drand48()), 0.5*(1 + drand48()), 0.5*(1 + drand48())),  0.5*drand48()));
+                    list[i++] = new Sphere(center, 0.2, new Metal(Vector3(0.5*(1 + drand48()), 0.5*(1 + drand48()), 0.5*(1 + drand48())),  0.5*drand48()));
                 }
                 else {  // glass
-                    list[i++] = new sphere(center, 0.2, new dielectric(1.5));
+                    list[i++] = new Sphere(center, 0.2, new Dielectric(1.5));
                 }
             }
         }
     }
 
-    list[i++] = new sphere(Vector3(0, 1, 0), 1.0, new dielectric(1.5));
+    list[i++] = new Sphere(Vector3(0, 1, 0), 1.0, new Dielectric(1.5));
 
     int nx, ny, nn;
     *tex_data = stbi_load("textures/earth.jpg", &nx, &ny, &nn, 0);
@@ -89,38 +89,38 @@ hitable *random_scene(unsigned char **tex_data) {
         return NULL;
     }
 
-    material *mat = new lambertian(new image_texture(*tex_data, nx, ny));
-    list[i++] = new sphere(Vector3(4, 1, 0), 1.0, mat);
+    Material *mat = new Lambertian(new ImageTexture(*tex_data, nx, ny));
+    list[i++] = new Sphere(Vector3(4, 1, 0), 1.0, mat);
 
-    list[i++] = new sphere(Vector3(-4, 1, 0), 1.0, new metal(colors[4], 0.0));
-    return new bvh_node(list,i,0.0, 1.0);
+    list[i++] = new Sphere(Vector3(-4, 1, 0), 1.0, new Metal(colors[4], 0.0));
+    return new BVHNode(list,i,0.0, 1.0);
 }
 
-hitable *cornell_box() {
-    hitable **list = new hitable*[6];
+Hitable *cornell_box() {
+    Hitable **list = new Hitable*[6];
     int i = 0;
-    material *white = new lambertian(new constant_texture(Vector3(0.73, 0.73, 0.73)));
+    Material *white = new Lambertian(new ConstantTexture(Vector3(0.73, 0.73, 0.73)));
 
-    list[i++] = new flip_normals(new yz_rect(0, 700, 0, 700, 700, white));
-    list[i++] = new yz_rect(0, 700, 0, 700, -700, white);
-    list[i++] = new flip_normals(new xz_rect(-700, 700, -700, 700, 700, white));
-    list[i++] = new xz_rect(-700, 700, -700, 700, 0, white);
-    list[i++] = new flip_normals(new xy_rect(-700, 700, 0, 700, 700, white));
+    list[i++] = new FlipNormals(new YZRect(0, 700, 0, 700, 700, white));
+    list[i++] = new YZRect(0, 700, 0, 700, -700, white);
+    list[i++] = new FlipNormals(new XZRect(-700, 700, -700, 700, 700, white));
+    list[i++] = new XZRect(-700, 700, -700, 700, 0, white);
+    list[i++] = new FlipNormals(new XYRect(-700, 700, 0, 700, 700, white));
 
-    return new hitable_list(list,i);
+    return new HitableList(list,i);
 }
 
-hitable *final() {
-    hitable **list = new hitable*[500];
+Hitable *final() {
+    Hitable **list = new Hitable*[500];
     int count = 0;
-    material *red = new lambertian( new constant_texture(Vector3(0.65, 0.05, 0.05)) );
-    material *white = new lambertian( new constant_texture(Vector3(0.73, 0.73, 0.73)) );
-    material *green = new lambertian( new constant_texture(Vector3(0.12, 0.45, 0.15)) );
-    material *light = new diffuse_light( new constant_texture(Vector3(15, 15, 15)) );
+    Material *red = new Lambertian( new ConstantTexture(Vector3(0.65, 0.05, 0.05)) );
+    Material *white = new Lambertian( new ConstantTexture(Vector3(0.73, 0.73, 0.73)) );
+    Material *green = new Lambertian( new ConstantTexture(Vector3(0.12, 0.45, 0.15)) );
+    Material *light = new DiffuseLight( new ConstantTexture(Vector3(15, 15, 15)) );
 
     list[count++] = cornell_box();
 
-    list[count++] = new sphere(Vector3(0,0,0), 50, red);
+    list[count++] = new Sphere(Vector3(0,0,0), 50, red);
     
     // for (int i=0; i < 6; i++) {
     //     for (int j = 0; j < 6; j++) {
@@ -128,13 +128,13 @@ hitable *final() {
     //         float y = drand48()*700;  
     //         float z = (drand48()*900)-450;
 
-    //         list[count++] = new sphere(Vector3(x,y,z), 50, white);
+    //         list[count++] = new Sphere(Vector3(x,y,z), 50, white);
     //     }
     // }
 
     // for (int i=0; i < 28; i++) {
 
-    //     list[count++] = new box(
+    //     list[count++] = new Box(
     //         Vector3(650-(50*i),0,400-drand48()*100),
     //         Vector3(700-(50*i),100+drand48()*200,700),
     //         green
@@ -142,11 +142,11 @@ hitable *final() {
 
     // }
 
-    //list[count++] = new constant_medium(cornell_box(), 0.01, new constant_texture(Vector3(1.0, 1.0, 1.0)));
+    //list[count++] = new ConstantMedium(cornell_box(), 0.01, new ConstantTexture(Vector3(1.0, 1.0, 1.0)));
 
-    list[count++] = new xz_rect(-200, 200, 0, 200, 554, light);
+    list[count++] = new XZRect(-200, 200, 0, 200, 554, light);
 
-    return new hitable_list(list, count);
+    return new HitableList(list, count);
 }
 
 int main(int argc, char *argv[]) {
@@ -175,8 +175,8 @@ int main(int argc, char *argv[]) {
     std::cout<< "Creating image " << options.fileName << "..." << std::endl;
 
     unsigned char *tex_data;
-    //hitable *world = random_scene(&tex_data);
-    hitable *world = final();
+    //Hitable *world = random_scene(&tex_data);
+    Hitable *world = final();
     // if (tex_data == NULL || world == NULL) {
     //     std::cout << "Error: creating scene has failed" << std::endl;
     //     return 0;
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
     float dist_to_focus = 10;
     float aperture = 0.0;
 
-    camera cam(lookfrom, lookat, Vector3(0,1,0), 40, float(options.xResolution)/float(options.yResolution), aperture, dist_to_focus, 0, 1);
+    Camera cam(lookfrom, lookat, Vector3(0,1,0), 40, float(options.xResolution)/float(options.yResolution), aperture, dist_to_focus, 0, 1);
 
     char* image;
     image = new char[options.xResolution*options.yResolution*3];
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
                 for (int s=0; s < options.nSamples; s++) {
                     float u = float(i + random_float()) / float(options.xResolution);
                     float v = float(j + random_float()) / float(options.yResolution);
-                    ray r = cam.get_ray(u, v);
+                    Ray r = cam.get_ray(u, v);
                     Vector3 p = r.point_at_parameter(2.0);
                     col += color(r, world, 0);
                 }

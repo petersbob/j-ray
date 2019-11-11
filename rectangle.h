@@ -2,52 +2,52 @@
 #define RECTANGLEH
 
 #include "hitable.h"
-#include "hitable_list.h"
+#include "hitableList.h"
 #include "material.h"
 
-class xy_rect: public hitable {
+class XYRect: public Hitable {
     public:
-        xy_rect() {}
-        xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, material *mat) : 
+        XYRect() {}
+        XYRect(float _x0, float _x1, float _y0, float _y1, float _k, Material *mat) : 
         x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat) {};
-        virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
-        virtual bool bounding_box(float t0, float t1, aabb& box) const {
-            box = aabb(Vector3(x0, y0, k-0.0001), Vector3(x1, y1, k+0.0001));
+        virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
+        virtual bool bounding_box(float t0, float t1, AABB& box) const {
+            box = AABB(Vector3(x0, y0, k-0.0001), Vector3(x1, y1, k+0.0001));
             return true;
         }
-        material *mp;
+        Material *mp;
         float x0, x1, y0, y1, k;
 };
 
-class xz_rect: public hitable {
+class XZRect: public Hitable {
     public:
-        xz_rect() {}
-        xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, material *mat) : 
+        XZRect() {}
+        XZRect(float _x0, float _x1, float _z0, float _z1, float _k, Material *mat) : 
         x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
-        virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
-        virtual bool bounding_box(float t0, float t1, aabb& box) const {
-            box = aabb(Vector3(x0, z0, k-0.0001), Vector3(x1, z1, k+0.0001));
+        virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
+        virtual bool bounding_box(float t0, float t1, AABB& box) const {
+            box = AABB(Vector3(x0, z0, k-0.0001), Vector3(x1, z1, k+0.0001));
             return true;
         }
-        material *mp;
+        Material *mp;
         float x0, x1, z0, z1, k;
 };
 
-class yz_rect: public hitable {
+class YZRect: public Hitable {
     public:
-        yz_rect() {}
-        yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, material *mat) : 
+        YZRect() {}
+        YZRect(float _y0, float _y1, float _z0, float _z1, float _k, Material *mat) : 
         y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
-        virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
-        virtual bool bounding_box(float t0, float t1, aabb& box) const {
-            box = aabb(Vector3(y0, y0, k-0.0001), Vector3(z1, z1, k+0.0001));
+        virtual bool hit(const Ray& r, float t0, float t1, HitRecord& rec) const;
+        virtual bool bounding_box(float t0, float t1, AABB& box) const {
+            box = AABB(Vector3(y0, y0, k-0.0001), Vector3(z1, z1, k+0.0001));
             return true;
         }
-        material *mp;
+        Material *mp;
         float y0, y1, z0, z1, k;
 };
 
-bool xy_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
+bool XYRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
     float t = (k-r.origin().z()) / r.direction().z();
     if (t < t0 || t > t1)
         return false;
@@ -66,7 +66,7 @@ bool xy_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
     return true;
 }
 
-bool xz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
+bool XZRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
     float t = (k-r.origin().y()) / r.direction().y();
     if (t < t0 || t > t1)
         return false;
@@ -83,7 +83,7 @@ bool xz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
     return true;
 }
 
-bool yz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
+bool YZRect::hit(const Ray& r, float t0, float t1, HitRecord& rec) const {
     float t = (k-r.origin().x()) / r.direction().x();
     if (t < t0 || t > t1)
         return false;

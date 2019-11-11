@@ -1,26 +1,26 @@
 #ifndef CMEDH
 #define CMEDH
 
-class constant_medium : public hitable {
+class ConstantMedium : public Hitable {
     public:
-        constant_medium(hitable *b, float d, texture *a) : boundary(b), density(d) {
-            phase_function = new isotropic(a);
+        ConstantMedium(Hitable *b, float d, Texture *a) : boundary(b), density(d) {
+            phase_function = new Isotropic(a);
         }
-        virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-        virtual bool bounding_box(float t0, float t1, aabb& box) const {
+        virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+        virtual bool bounding_box(float t0, float t1, AABB& box) const {
             return boundary->bounding_box(t0, t1, box);
         }
 
-        hitable *boundary;
+        Hitable *boundary;
         float density;
-        material *phase_function;
+        Material *phase_function;
 };
 
-bool constant_medium::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
+bool ConstantMedium::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const {
     bool db = (drand48() < 0.00001);
     db = false;
 
-    hit_record rec1, rec2;
+    HitRecord rec1, rec2;
     if (boundary->hit(r, -FLT_MAX, FLT_MAX, rec1)) {
         if (boundary->hit(r, rec1.t+0.0001, FLT_MAX, rec2)) {
             if (db) std::cerr << "t0 t1" << rec1.t << " " << rec2.t << std::endl;

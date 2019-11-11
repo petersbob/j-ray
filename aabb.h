@@ -4,14 +4,14 @@
 inline float ffmin(float a, float b) { return a < b ? a : b; }
 inline float ffmax(float a, float b) { return a > b ? a : b; }
 
-class aabb {
+class AABB {
     public:
-        aabb() {}
-        aabb(const Vector3& a, const Vector3& b) { _min = a; _max = b; }
+        AABB() {}
+        AABB(const Vector3& a, const Vector3& b) { _min = a; _max = b; }
         Vector3 min() const {return _min; }
         Vector3 max() const {return _max; }
 
-        bool hit(const ray& r, float tmin, float tmax) const {
+        bool hit(const Ray& r, float tmin, float tmax) const {
             for (int a = 0; a < 3; a++) {
                 float t0 = ffmin((_min[a] - r.origin()[a]) / r.direction()[a],
                                 (_max[a] - r.origin()[a]) / r.direction()[a]);
@@ -28,7 +28,7 @@ class aabb {
     Vector3 _max;
 };
 
-aabb surrounding_box(aabb box0, aabb box1) {
+AABB surrounding_box(AABB box0, AABB box1) {
     Vector3 small( fmin(box0.min().x(), box1.min().x()),
                 fmin(box0.min().y(), box1.min().y()),
                 fmin(box0.min().z(), box1.min().z()));
@@ -37,13 +37,13 @@ aabb surrounding_box(aabb box0, aabb box1) {
                 fmax(box0.max().y(), box1.max().y()),
                 fmax(box0.max().z(), box1.max().z()));
 
-    return aabb(small,big);
+    return AABB(small,big);
 }
 
 /*
     Hit method variation that is quicker on many compilers
 */
-// inline bool aabb::hit(const ray& r, float tmin, float tmax) const {
+// inline bool AABB::hit(const Ray& r, float tmin, float tmax) const {
 //     for (int a = 0; a < 3; a++) {
 //         float invD = 1.0f / r.direction()[a];
 //         float t0 = (min()[a] - r.origin()[a]) * invD;

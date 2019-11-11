@@ -3,10 +3,10 @@
 
 #include "vector.h"
 
-class ray {
+class Ray {
     public:
-        ray() {}
-        ray(const Vector3& a, const Vector3& b, float ti = 0.0) { A = a; B = b; _time = ti;}
+        Ray() {}
+        Ray(const Vector3& a, const Vector3& b, float ti = 0.0) { A = a; B = b; _time = ti;}
         Vector3 origin() const { return A; }
         Vector3 direction() const { return B; }
         float time() const { return _time; };
