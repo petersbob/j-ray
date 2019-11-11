@@ -16,7 +16,7 @@ inline float trilinear_interp(float c[2][2][2], float u, float v, float w) {
 class perlin {
     public:
     // TODO: implement perlin noise
-        float noise(const vec3& p) const {
+        float noise(const Vector3& p) const {
             float u = p.x() - floor(p.x());
             float v = p.y() - floor(p.y());
             float w = p.z() - floor(p.z());
@@ -68,24 +68,24 @@ static int* perlin_generate_perm() {
 
 class texture {
     public:
-        virtual vec3 value(float u, float v, const vec3& p) const = 0;
+        virtual Vector3 value(float u, float v, const Vector3& p) const = 0;
 };
 
 class constant_texture : public texture {
     public:
         constant_texture() { }
-        constant_texture(vec3 c) : color(c) { }
-        virtual vec3 value(float u, float v, const vec3& p) const {
+        constant_texture(Vector3 c) : color(c) { }
+        virtual Vector3 value(float u, float v, const Vector3& p) const {
             return color;
         }
-        vec3 color;
+        Vector3 color;
 };
 
 class checker_texture : public texture {
     public:
         checker_texture() { }
         checker_texture(texture *t0, texture *t1) : even(t0), odd(t1) { }
-        virtual vec3 value(float u, float v, const vec3& p) const {
+        virtual Vector3 value(float u, float v, const Vector3& p) const {
             float sines = sin(10*p.x())*sin(10*p.y())*sin(10*p.z());
             if (sines < 0)
                 return odd->value(u, v, p);
@@ -101,8 +101,8 @@ class noise_texture : public texture {
     public:
         noise_texture() {}
         noise_texture(float sc) : scale(sc) {}
-        virtual vec3 value(float u, float v, const vec3& p) const {
-            return vec3(1,1,1)*noise.noise(p*scale);
+        virtual Vector3 value(float u, float v, const Vector3& p) const {
+            return Vector3(1,1,1)*noise.noise(p*scale);
         }
         perlin noise;
         float scale;
@@ -112,12 +112,12 @@ class image_texture : public texture {
     public:
         image_texture() {}
         image_texture(unsigned char *pixels, int A, int B) : data(pixels), nx(A), ny(B) {}
-        virtual vec3 value(float u, float v, const vec3& p) const;
+        virtual Vector3 value(float u, float v, const Vector3& p) const;
         unsigned char *data;
         int nx, ny;
 };
 
-vec3 image_texture::value(float u, float v, const vec3& p) const {
+Vector3 image_texture::value(float u, float v, const Vector3& p) const {
     int i = (u)*nx;
     int j = (1-v)*ny-0.001;
     if (i < 0) i = 0;
@@ -127,7 +127,7 @@ vec3 image_texture::value(float u, float v, const vec3& p) const {
     float r = int(data[3*i + 3*nx*j] ) / 255.0;
     float g = int(data[3*i + 3*nx*j + 1] ) / 255.0;
     float b = int(data[3*i + 3*nx*j + 2] ) / 255.0;
-    return vec3(r, g, b);
+    return Vector3(r, g, b);
 }
 
 float * perlin::ranfloat = perlin_generate();

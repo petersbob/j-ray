@@ -12,7 +12,7 @@ class xy_rect: public hitable {
         x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat) {};
         virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
         virtual bool bounding_box(float t0, float t1, aabb& box) const {
-            box = aabb(vec3(x0, y0, k-0.0001), vec3(x1, y1, k+0.0001));
+            box = aabb(Vector3(x0, y0, k-0.0001), Vector3(x1, y1, k+0.0001));
             return true;
         }
         material *mp;
@@ -26,7 +26,7 @@ class xz_rect: public hitable {
         x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
         virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
         virtual bool bounding_box(float t0, float t1, aabb& box) const {
-            box = aabb(vec3(x0, z0, k-0.0001), vec3(x1, z1, k+0.0001));
+            box = aabb(Vector3(x0, z0, k-0.0001), Vector3(x1, z1, k+0.0001));
             return true;
         }
         material *mp;
@@ -40,7 +40,7 @@ class yz_rect: public hitable {
         y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
         virtual bool hit(const ray& r, float t0, float t1, hit_record& rec) const;
         virtual bool bounding_box(float t0, float t1, aabb& box) const {
-            box = aabb(vec3(y0, y0, k-0.0001), vec3(z1, z1, k+0.0001));
+            box = aabb(Vector3(y0, y0, k-0.0001), Vector3(z1, z1, k+0.0001));
             return true;
         }
         material *mp;
@@ -62,7 +62,7 @@ bool xy_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
     rec.t = t;
     rec.mat_ptr = mp;
     rec.p = r.point_at_parameter(t);
-    rec.normal = vec3(0,0,1);
+    rec.normal = Vector3(0,0,1);
     return true;
 }
 
@@ -79,7 +79,7 @@ bool xz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
     rec.t = t;
     rec.mat_ptr = mp;
     rec.p = r.point_at_parameter(t);
-    rec.normal = vec3(0, 1, 0);
+    rec.normal = Vector3(0, 1, 0);
     return true;
 }
 
@@ -96,7 +96,7 @@ bool yz_rect::hit(const ray& r, float t0, float t1, hit_record& rec) const {
     rec.t = t;
     rec.mat_ptr = mp;
     rec.p = r.point_at_parameter(t);
-    rec.normal = vec3(1, 0, 0);
+    rec.normal = Vector3(1, 0, 0);
     return true;
 }
 
