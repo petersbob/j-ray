@@ -1,3 +1,6 @@
+#ifndef AABBH
+#define AABBH
+
 inline float ffmin(float a, float b) { return a < b ? a : b; }
 inline float ffmax(float a, float b) { return a > b ? a : b; }
 
@@ -52,3 +55,5 @@ aabb surrounding_box(aabb box0, aabb box1) {
 //     }
 //     return true;
 // }
+
+#endif
